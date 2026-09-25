@@ -15,21 +15,27 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@better-auth/expo": "^1.7.6",
     "@nestjs/common": "^11.0.10",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.10",
     "@nestjs/platform-express": "^11.0.10",
     "@nestjs/swagger": "^11.2.0",
+    "better-auth": "^1.7.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "dotenv": "^18.0.3",
     "drizzle-orm": "^0.45.2",
+    "jose": "^6.2.12",
     "postgres": "^3.4.5",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.10.0",
     "drizzle-kit": "^0.31.10",
     "prettier": "^3.9.9",

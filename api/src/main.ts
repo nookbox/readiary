@@ -2,16 +2,25 @@ import 'reflect-metadata';
 import { writeFileSync } from 'node:fs';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { type NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from './app.module';
+import { auth } from './lib/auth';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // better-auth 는 raw body 를 직접 읽는다. Nest 의 body parser 를 끄고 auth 핸들러 뒤에 다시 켠다.
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false });
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-  // 개발 중 Expo 앱이 로컬 네트워크에서 바로 붙을 수 있게 열어 둔다.
-  app.enableCors({ origin: true });
+
+  // app.enableCors({ origin: true });
+
+  // /api/auth/* 는 전부 better-auth 가 처리한다 (로그인·콜백·세션·로그아웃).
+  app.use('/api/auth', toNodeHandler(auth));
+  app.useBodyParser('json');
+  app.useBodyParser('urlencoded', { extended: true });
 
   const config = new DocumentBuilder()
     .setTitle('readiary API')

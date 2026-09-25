@@ -1,10 +1,12 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { sql } from 'drizzle-orm';
+import { Public } from '../common/decorators/public.decorator';
 import { DRIZZLE, type Database } from '../db/db.module';
 import { HealthResponseDto } from './health.dto';
 
 @ApiTags('health')
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}

@@ -17,7 +17,9 @@
             }
           }
         },
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     }
   },
@@ -36,12 +38,18 @@
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["ok", "degraded"],
+            "enum": [
+              "ok",
+              "degraded"
+            ],
             "example": "ok"
           },
           "database": {
             "type": "string",
-            "enum": ["up", "down"],
+            "enum": [
+              "up",
+              "down"
+            ],
             "example": "up"
           },
           "timestamp": {
@@ -50,7 +58,11 @@
             "example": "2026-09-25T10:02:28.192Z"
           }
         },
-        "required": ["status", "database", "timestamp"]
+        "required": [
+          "status",
+          "database",
+          "timestamp"
+        ]
       }
     }
   }
