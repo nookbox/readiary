@@ -1,0 +1,5 @@
+# 워크스페이스가 아니라 pnpm 설정 파일로 쓴다 (pnpm 11부터 package.json 의 pnpm 필드는 무시됨).
+# drizzle-kit 이 esbuild 바이너리를 필요로 한다. @scarf/scarf(텔레메트리)는 계속 차단.
+allowBuilds:
+  '@scarf/scarf': set this to true or false
+  esbuild: true

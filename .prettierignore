@@ -4,4 +4,6 @@ build
 .expo
 coverage
 pnpm-lock.yaml
-drizzle
+api/drizzle
+api/openapi.json
+mobile/src/api/generated

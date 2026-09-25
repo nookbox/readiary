@@ -8,24 +8,28 @@
 
 ```
 readiary/
-├── apps/
-│   ├── api/          NestJS + Drizzle ORM
-│   └── mobile/       Expo (React Native)
-├── packages/
-│   └── shared/       앱과 서버가 함께 쓰는 타입·유틸
+├── api/                 NestJS + Drizzle ORM   (독립 프로젝트)
+├── mobile/              Expo (React Native)    (독립 프로젝트)
 └── docker-compose.yml   개발용 Postgres 16
 ```
+
+두 프로젝트는 서로 의존하지 않는다. 각자 `node_modules`를 갖고 따로 설치·실행한다.
+**타입은 OpenAPI로 공유한다** — api가 스펙을 떨구고 mobile이 그걸로 타입을 생성한다.
 
 ## 시작하기
 
 ```bash
-pnpm install
-cp .env.example .env     # ALADIN_TTB_KEY 등을 채운다
-pnpm db:up               # Postgres 컨테이너 기동 (127.0.0.1:5436)
-pnpm db:migrate          # 스키마 반영
+docker compose up -d          # Postgres (127.0.0.1:5436)
 
-pnpm dev:api             # → http://localhost:4000/api
-pnpm dev:mobile          # → Expo 개발 서버
+cd api
+pnpm install
+cp .env.example .env          # ALADIN_TTB_KEY 등을 채운다
+pnpm db:migrate
+pnpm dev                      # → http://localhost:4000/api
+
+cd ../mobile
+pnpm install
+pnpm dev                      # → Expo 개발 서버
 ```
 
 동작 확인:
@@ -35,17 +39,32 @@ curl http://localhost:4000/api/health
 # {"status":"ok","database":"up","timestamp":"..."}
 ```
 
-### 주요 스크립트
+## 타입 공유 (OpenAPI)
 
-| 명령                     | 설명                                |
-| ------------------------ | ----------------------------------- |
-| `pnpm dev`               | api + mobile 동시 실행              |
-| `pnpm db:up` / `db:down` | Postgres 컨테이너 기동/정지         |
-| `pnpm db:generate`       | 스키마 변경 → 마이그레이션 SQL 생성 |
-| `pnpm db:migrate`        | 마이그레이션 적용                   |
-| `pnpm db:studio`         | Drizzle Studio (localhost:4983)     |
-| `pnpm typecheck`         | 전체 타입 검사                      |
-| `pnpm format`            | Prettier                            |
+```
+api/src/**/*.dto.ts          @nestjs/swagger 데코레이터
+        ↓  api 실행 (NODE_ENV !== production)
+api/openapi.json             스펙 산출물
+        ↓  cd mobile && pnpm gen:api
+mobile/src/api/generated/     타입만 생성 (@hey-api/openapi-ts)
+```
+
+**API를 고쳤으면 api를 한 번 실행해 스펙을 갱신한 뒤 `pnpm gen:api`를 돌린다.**
+응답 모양이 바뀌면 앱 쪽에서 타입 에러로 바로 드러난다.
+
+SDK나 HTTP 클라이언트는 생성하지 않는다. fetch 래퍼는 `mobile/src/api/client.ts`에 직접 둔다.
+
+스펙 UI는 http://localhost:4000/api-docs 에서 볼 수 있다.
+
+### 무엇을 공유하고 무엇을 공유하지 않는가
+
+OpenAPI가 가져다주는 것은 **타입**이다. 로직은 각자 갖는다.
+
+- ISBN 판정 — 진짜 검증(체크디지트 포함)은 `api/src/common/isbn.ts`.
+  앱의 `mobile/src/constants/isbn.ts`는 부가기호 바코드를 걸러내기 위한 정규식 한 줄짜리 UX 필터다.
+  클라이언트는 믿지 않는다는 원칙은 그대로다.
+- 상태 한글 라벨 — UI 관심사이므로 `mobile/src/constants/reading-status.ts`.
+  상태 값 자체는 서버가 정하고 생성된 타입으로 내려온다.
 
 ## 데이터 모델
 
@@ -82,8 +101,6 @@ curl http://localhost:4000/api/health
 
 책 뒷면에는 바코드가 둘 있다 — ISBN 바코드와 부가기호 바코드(5자리).
 스캐너가 부가기호를 먼저 읽는 일이 잦으므로 **13자리이면서 `978`/`979`로 시작하는 값만** 책으로 인정한다.
-검증과 정규화는 `@readiary/shared`의 `isValidIsbn13` / `normalizeIsbn` / `toIsbn13`에 있다.
-
 DB에도 같은 규칙을 CHECK 제약으로 걸어 뒀다. 저장 전 하이픈·공백은 제거한다.
 
 ## 아키텍처 메모
@@ -102,13 +119,13 @@ DB에도 같은 규칙을 CHECK 제약으로 걸어 뒀다. 저장 전 하이픈
 
 ### 포트
 
-|                | 포트 | 비고                                                  |
-| -------------- | ---- | ----------------------------------------------------- |
-| API            | 4000 |                                                       |
-| Postgres       | 5436 | 127.0.0.1 바인딩. 5433~5435는 기존 프로젝트가 사용 중 |
-| Drizzle Studio | 4983 |                                                       |
+| | 포트 | 비고 |
+| --- | --- | --- |
+| API | 4000 | 스펙 UI는 `/api-docs` |
+| Postgres | 5436 | 127.0.0.1 바인딩. 5433~5435는 기존 프로젝트가 사용 중 |
+| Drizzle Studio | 4983 | `cd api && pnpm db:studio` |
 
 ## 참고
 
-- 모노레포에서 Expo를 쓰기 위해 `.npmrc`에 `node-linker=hoisted`가 필요하다. Metro는 pnpm의 심볼릭 링크 구조를 제대로 해석하지 못한다.
-- `apps/api`의 `rootDir`이 모노레포 루트라 빌드 결과가 `dist/apps/api/src/main.js`에 떨어진다. `nest-cli.json`의 `entryFile`이 이를 맞춘다.
+- **Expo + pnpm에는 `node-linker=hoisted`가 필요하다** (`mobile/.npmrc`). Metro가 pnpm의 심볼릭 링크 구조를 제대로 해석하지 못한다.
+- pnpm 11부터 `package.json`의 `pnpm` 필드는 무시된다. 설정은 `pnpm-workspace.yaml`에 둔다 (워크스페이스가 아니어도 설정 파일로 읽힌다).
