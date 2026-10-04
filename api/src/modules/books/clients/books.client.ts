@@ -50,7 +50,7 @@ export class BooksClient {
     }
 
     const body = (await res.json()) as BookResponse;
-    this.logger.log(`카카오 책 검색 응답: ${JSON.stringify(body)}`);
+    // this.logger.log(`카카오 책 검색 응답: ${JSON.stringify(body)}`);
 
     return body ?? null;
   }
