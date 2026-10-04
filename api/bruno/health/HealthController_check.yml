@@ -1,0 +1,38 @@
+info:
+  name: HealthController_check
+  type: http
+  seq: 1
+  tags:
+    - health
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/health"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true
+
+examples:
+  - name: 200 Response
+    request:
+      url: "{{baseUrl}}/api/health"
+      method: GET
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "status": "ok",
+            "database": "up",
+            "timestamp": "2026-09-25T10:02:28.192Z"
+          }

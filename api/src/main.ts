@@ -1,10 +1,11 @@
 import 'reflect-metadata';
 import { writeFileSync } from 'node:fs';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { type NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { toNodeHandler } from 'better-auth/node';
+import { cleanupOpenApiDoc, ZodValidationPipe } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import { auth } from './lib/auth';
 
@@ -13,7 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, { bodyParser: false });
 
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ZodValidationPipe());
 
   // app.enableCors({ origin: true });
 
@@ -27,7 +28,8 @@ async function bootstrap() {
     .setDescription('다읽어리 — 독후감 기록 API')
     .setVersion('0.1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
+  // nestjs-zod 의 DTO 스키마를 OpenAPI 형식으로 정리한다.
+  const document = cleanupOpenApiDoc(SwaggerModule.createDocument(app, config));
   // UI: /api-docs, spec JSON: /api-docs-json
   SwaggerModule.setup('api-docs', app, document);
 

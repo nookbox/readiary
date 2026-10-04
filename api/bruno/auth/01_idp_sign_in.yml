@@ -1,0 +1,18 @@
+info:
+  name: 01 IdP 로그인
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:3001/api/auth/sign-in/email
+  headers:
+    - name: Origin
+      value: http://localhost:3000
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{process.env.IDP_EMAIL}}",
+        "password": "{{process.env.IDP_PASSWORD}}"
+      }

@@ -1,0 +1,20 @@
+info:
+  name: 04 readiary 콜백
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: "{{callbackUrl}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // 쿠키 저장소가 자동으로 안 붙여줄 때를 대비해 변수로도 남긴다.
+        const c = [].concat(res.headers["set-cookie"] || []).map((s) => s.split(";")[0]).join("; ");
+        bru.setVar("sessionCookie", c);
+
+settings:
+  encodeUrl: false
+  followRedirects: false

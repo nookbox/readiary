@@ -1,0 +1,18 @@
+info:
+  name: BooksController_search
+  type: http
+  seq: 2
+  tags:
+    - books
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/books/search?q=데미안"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

@@ -21,6 +21,68 @@
           "health"
         ]
       }
+    },
+    "/api/books/search": {
+      "get": {
+        "operationId": "BooksController_search",
+        "parameters": [
+          {
+            "name": "q",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "minLength": 1,
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookResponseDto_Output"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "books"
+        ]
+      }
+    },
+    "/api/books/{isbn}": {
+      "get": {
+        "operationId": "BooksController_findByIsbn",
+        "parameters": [
+          {
+            "name": "isbn",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "books"
+        ]
+      }
     }
   },
   "info": {
@@ -62,6 +124,174 @@
           "status",
           "database",
           "timestamp"
+        ]
+      },
+      "BookResponseDto_Output": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "is_end": {
+                "type": "boolean"
+              },
+              "pageable_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "total_count": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "is_end",
+              "pageable_count",
+              "total_count"
+            ],
+            "additionalProperties": false
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "contents": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                },
+                "isbn": {
+                  "type": "string"
+                },
+                "datetime": {
+                  "type": "string"
+                },
+                "authors": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "publisher": {
+                  "type": "string"
+                },
+                "translators": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "price": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "sale_price": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "thumbnail": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "contents",
+                "url",
+                "isbn",
+                "datetime",
+                "authors",
+                "publisher",
+                "translators",
+                "price",
+                "sale_price",
+                "thumbnail",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "meta",
+          "documents"
+        ],
+        "additionalProperties": false
+      },
+      "BookDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "isbn13": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publisher": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "coverUrl": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pageCount": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "isbn13",
+          "title",
+          "author",
+          "publisher",
+          "coverUrl",
+          "pageCount",
+          "publishedAt",
+          "createdAt"
         ]
       }
     }

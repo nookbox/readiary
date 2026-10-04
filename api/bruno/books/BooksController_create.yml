@@ -1,0 +1,55 @@
+info:
+  name: BooksController_create
+  type: http
+  seq: 1
+  tags:
+    - books
+
+http:
+  method: POST
+  url: '{{baseUrl}}/api/books'
+  body:
+    type: json
+    data: |-
+      {
+        "isbn": "9788936434120"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 201 Response
+    request:
+      url: '{{baseUrl}}/api/books'
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "isbn": ""
+          }
+    response:
+      status: 201
+      statusText: Created
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "id": "",
+            "isbn13": "",
+            "title": "",
+            "author": "",
+            "publisher": "",
+            "coverUrl": "",
+            "pageCount": 0,
+            "publishedAt": "",
+            "createdAt": ""
+          }

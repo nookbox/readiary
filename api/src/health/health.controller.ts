@@ -1,8 +1,8 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { sql } from 'drizzle-orm';
-import { Public } from '../common/decorators/public.decorator';
-import { DRIZZLE, type Database } from '../db/db.module';
+import { Public } from '@/common/decorators/public.decorator';
+import { DRIZZLE, type Database } from '@/db/db.module';
 import { HealthResponseDto } from './health.dto';
 
 @ApiTags('health')
@@ -14,7 +14,7 @@ export class HealthController {
   @Get()
   @ApiOkResponse({ type: HealthResponseDto })
   async check(): Promise<HealthResponseDto> {
-    let database: 'up' | 'down' = 'down';
+    let database: 'up' | 'down';
     try {
       await this.db.execute(sql`select 1`);
       database = 'up';

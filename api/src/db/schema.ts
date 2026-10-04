@@ -94,8 +94,6 @@ export const verification = pgTable(
   (t) => [index('verification_identifier_idx').on(t.identifier)],
 );
 
-// --- 도메인 테이블 ---
-
 export const books = pgTable(
   'books',
   {

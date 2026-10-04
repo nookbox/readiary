@@ -5,8 +5,8 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { genericOAuth } from 'better-auth/plugins/generic-oauth';
 
-import { db } from '../db';
-import { account, session, users, verification } from '../db/schema';
+import { db } from '@/db';
+import { account, session, users, verification } from '@/db/schema';
 import { backchannelLogout } from './backchannel-logout';
 
 const providerId = process.env.OIDC_PROVIDER_ID ?? 'nook-auth';

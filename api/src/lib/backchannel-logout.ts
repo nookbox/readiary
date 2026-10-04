@@ -1,19 +1,9 @@
-import {
-  APIError,
-  createAuthEndpoint,
-  createAuthMiddleware,
-} from 'better-auth/api';
+import { APIError, createAuthEndpoint, createAuthMiddleware } from 'better-auth/api';
 import type { BetterAuthPlugin } from 'better-auth';
-import {
-  createRemoteJWKSet,
-  decodeJwt,
-  jwtVerify,
-  type JWTPayload,
-} from 'jose';
+import { createRemoteJWKSet, decodeJwt, jwtVerify, type JWTPayload } from 'jose';
 import * as z from 'zod';
 
-const BACKCHANNEL_LOGOUT_EVENT =
-  'http://schemas.openid.net/event/backchannel-logout';
+const BACKCHANNEL_LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout';
 
 /**
  * ⚠️ ctx.json(body, { status: 400 }) 은 먹지 않는다. better-call 이 두 번째
@@ -31,9 +21,7 @@ interface BackchannelLogoutOptions {
   providerId: string;
 }
 
-export const backchannelLogout = (
-  options: BackchannelLogoutOptions,
-): BetterAuthPlugin => {
+export const backchannelLogout = (options: BackchannelLogoutOptions): BetterAuthPlugin => {
   const jwks = createRemoteJWKSet(new URL(`${options.issuer}/jwks`));
 
   return {
@@ -48,8 +36,7 @@ export const backchannelLogout = (
       after: [
         {
           // OIDC 콜백 요청일 때만 이 훅을 켠다.
-          matcher: (ctx) =>
-            ctx.path?.startsWith(`/callback/${options.providerId}`) ?? false,
+          matcher: (ctx) => ctx.path?.startsWith(`/callback/${options.providerId}`) ?? false,
           handler: createAuthMiddleware(async (ctx) => {
             // 방금 세션이 새로 생겼나? 아니면 로그인이 아니니 통과.
             const created = ctx.context.newSession;
@@ -73,10 +60,7 @@ export const backchannelLogout = (
             if (typeof sid !== 'string') return;
 
             // 방금 만들어진 그 세션 행에 sid 를 기록.
-            await ctx.context.internalAdapter.updateSession(
-              created.session.token,
-              { idpSid: sid },
-            );
+            await ctx.context.internalAdapter.updateSession(created.session.token, { idpSid: sid });
           }),
         },
       ],
@@ -88,10 +72,7 @@ export const backchannelLogout = (
           method: 'POST',
           // IdP 는 스펙대로 form-urlencoded 로 보낸다.
           metadata: {
-            allowedMediaTypes: [
-              'application/x-www-form-urlencoded',
-              'application/json',
-            ],
+            allowedMediaTypes: ['application/x-www-form-urlencoded', 'application/json'],
           },
           body: z.object({ logout_token: z.string() }),
         },
@@ -104,10 +85,7 @@ export const backchannelLogout = (
             });
             payload = verified.payload;
           } catch (error) {
-            ctx.context.logger.warn(
-              '[backchannel-logout] logout_token 검증 실패',
-              error,
-            );
+            ctx.context.logger.warn('[backchannel-logout] logout_token 검증 실패', error);
             throw reject();
           }
 
@@ -138,24 +116,16 @@ export const backchannelLogout = (
 
             if (typeof sid === 'string') {
               // 끝난 IdP 세션에서 파생된 세션만 끊는다. 다른 기기는 살려둔다.
-              const sessions = await ctx.context.internalAdapter.listSessions(
-                linked.userId,
-              );
+              const sessions = await ctx.context.internalAdapter.listSessions(linked.userId);
               await Promise.all(
                 sessions
                   // additionalFields 는 플러그인 밖에서 선언돼 base 타입에 안 뜬다.
-                  .filter(
-                    (s) => (s as { idpSid?: string | null }).idpSid === sid,
-                  )
-                  .map((s) =>
-                    ctx.context.internalAdapter.deleteSession(s.token),
-                  ),
+                  .filter((s) => (s as { idpSid?: string | null }).idpSid === sid)
+                  .map((s) => ctx.context.internalAdapter.deleteSession(s.token)),
               );
             } else {
               // sid 없는 logout_token 도 스펙상 유효하다. 그땐 좁힐 수가 없다.
-              await ctx.context.internalAdapter.deleteUserSessions(
-                linked.userId,
-              );
+              await ctx.context.internalAdapter.deleteUserSessions(linked.userId);
             }
           }
 

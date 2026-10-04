@@ -1,0 +1,6 @@
+info:
+  name: books
+  type: folder
+
+request:
+  auth: inherit

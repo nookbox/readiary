@@ -8,9 +8,9 @@ import { Reflector } from '@nestjs/core';
 import { fromNodeHeaders } from 'better-auth/node';
 import { type Request } from 'express';
 
-import { auth } from '../../lib/auth';
-import { type AuthenticatedUser } from '../decorators/current-user.decorator';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { auth } from '@/lib/auth';
+import { type AuthenticatedUser } from '@/common/decorators/current-user.decorator';
+import { IS_PUBLIC_KEY } from '@/common/decorators/public.decorator';
 
 export interface AuthenticatedRequest extends Request {
   user?: AuthenticatedUser;
