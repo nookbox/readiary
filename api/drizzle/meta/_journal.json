@@ -15,6 +15,27 @@
       "when": 1791010616107,
       "tag": "0001_funny_toro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791123537714,
+      "tag": "0002_clean_cardiac",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791125365018,
+      "tag": "0003_jazzy_red_wolf",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791629246583,
+      "tag": "0004_whole_virginia_dare",
+      "breakpoints": true
     }
   ]
 }

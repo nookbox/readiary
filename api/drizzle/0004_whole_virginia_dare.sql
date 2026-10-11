@@ -1,0 +1,1 @@
+ALTER TABLE "book_reports" ADD CONSTRAINT "book_reports_started_before_finished" CHECK ("book_reports"."started_at" IS NULL OR "book_reports"."finished_at" IS NULL OR "book_reports"."started_at" <= "book_reports"."finished_at");

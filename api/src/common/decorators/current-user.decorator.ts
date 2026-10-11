@@ -4,15 +4,15 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 
-export interface AuthenticatedUser {
+export interface AuthUser {
   id: string;
   email: string;
   name: string;
   image: string | null;
 }
 
-export const CurrentUser = createParamDecorator((_, ctx: ExecutionContext): AuthenticatedUser => {
-  const request = ctx.switchToHttp().getRequest<{ user?: AuthenticatedUser }>();
+export const CurrentUser = createParamDecorator((_, ctx: ExecutionContext): AuthUser => {
+  const request = ctx.switchToHttp().getRequest<{ user?: AuthUser }>();
   if (!request.user) {
     throw new InternalServerErrorException('@CurrentUser was used without auth guard');
   }

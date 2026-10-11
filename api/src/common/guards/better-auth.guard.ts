@@ -9,11 +9,11 @@ import { fromNodeHeaders } from 'better-auth/node';
 import { type Request } from 'express';
 
 import { auth } from '@/lib/auth';
-import { type AuthenticatedUser } from '@/common/decorators/current-user.decorator';
+import { type AuthUser } from '@/common/decorators/current-user.decorator';
 import { IS_PUBLIC_KEY } from '@/common/decorators/public.decorator';
 
 export interface AuthenticatedRequest extends Request {
-  user?: AuthenticatedUser;
+  user?: AuthUser;
 }
 
 @Injectable()

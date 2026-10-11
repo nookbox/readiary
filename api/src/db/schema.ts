@@ -5,6 +5,7 @@ import {
   date,
   index,
   integer,
+  pgEnum,
   pgTable,
   smallint,
   text,
@@ -14,6 +15,8 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+import { READING_STATUSES } from '../common/reading-status';
 
 export const users = pgTable('users', {
   id: uuid().primaryKey().defaultRandom(),
@@ -113,6 +116,8 @@ export const books = pgTable(
   ],
 );
 
+export const readingStatusEnum = pgEnum('reading_status', READING_STATUSES);
+
 export const bookReports = pgTable(
   'book_reports',
   {
@@ -124,11 +129,13 @@ export const bookReports = pgTable(
       .notNull()
       .references(() => books.id, { onDelete: 'restrict' }),
     round: integer().notNull().default(1),
-    status: varchar({ length: 20 }).notNull().default('want'),
+    status: readingStatusEnum('status').notNull().default('want'),
     rating: smallint(),
     content: text(),
     startedAt: timestamp({ withTimezone: true }),
     finishedAt: timestamp({ withTimezone: true }),
+    // null 이면 임시저장, 값이 있으면 발행된 독후감.
+    publishedAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
@@ -138,9 +145,16 @@ export const bookReports = pgTable(
     index('book_reports_user_status_idx').on(t.userId, t.status),
     check('book_reports_round_positive', sql`${t.round} >= 1`),
     check('book_reports_rating_range', sql`${t.rating} IS NULL OR ${t.rating} BETWEEN 1 AND 5`),
+    // 본문 없는 독후감은 발행할 수 없다.
     check(
-      'book_reports_status_allowed',
-      sql`${t.status} IN ('want', 'reading', 'done', 'dropped')`,
+      'book_reports_published_has_content',
+      sql`${t.publishedAt} IS NULL OR ${t.content} IS NOT NULL`,
+    ),
+
+    // 시작 날짜가 종료 날짜보다 이후이면 DB가 거부한다.
+    check(
+      'book_reports_started_before_finished',
+      sql`${t.startedAt} IS NULL OR ${t.finishedAt} IS NULL OR ${t.startedAt} <= ${t.finishedAt}`,
     ),
   ],
 );

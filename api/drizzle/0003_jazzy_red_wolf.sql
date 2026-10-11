@@ -1,0 +1,2 @@
+ALTER TABLE "book_reports" ADD COLUMN "published_at" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "book_reports" ADD CONSTRAINT "book_reports_published_has_content" CHECK ("book_reports"."published_at" IS NULL OR "book_reports"."content" IS NOT NULL);
