@@ -1,6 +1,6 @@
 import { Database, DRIZZLE } from '@/db/db.module';
 import { bookReports, type BookReportRow, type NewBookReportRow } from '@/db/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -13,7 +13,6 @@ export class BookReportsRepository {
     return row!;
   }
 
-  // 수정: 서비스가 수정 전에 기존 글을 확인하려고 추가. 남의 글은 조회되지 않는다.
   async findById(userId: string, reportId: string): Promise<BookReportRow | undefined> {
     const [row] = await this.db
       .select()
@@ -30,7 +29,16 @@ export class BookReportsRepository {
   ): Promise<BookReportRow | undefined> {
     const [row] = await this.db
       .update(bookReports)
-      .set({ ...values, updatedAt: new Date() })
+      .set({ ...values, updatedAt: sql`now()` })
+      .where(and(eq(bookReports.id, reportId), eq(bookReports.userId, userId)))
+      .returning();
+
+    return row;
+  }
+
+  async delete(userId: string, reportId: string): Promise<BookReportRow | undefined> {
+    const [row] = await this.db
+      .delete(bookReports)
       .where(and(eq(bookReports.id, reportId), eq(bookReports.userId, userId)))
       .returning();
 

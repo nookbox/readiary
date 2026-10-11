@@ -1,6 +1,16 @@
 import { CurrentUser, type AuthUser } from '@/common/decorators/current-user.decorator';
-import { Body, Controller, HttpStatus, Param, Patch, Post, UseFilters } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  UseFilters,
+} from '@nestjs/common';
+import { ApiNoContentResponse, ApiTags } from '@nestjs/swagger';
 import { ZodResponse } from 'nestjs-zod';
 import { BookReportDto } from '../dto/book-report.dto';
 import { CreateBookReportDto } from '../dto/create-book-report.dto';
@@ -28,5 +38,12 @@ export class BookReportsController {
     @Body() dto: UpdateBookReportDto,
   ) {
     return this.bookReportsService.updateBookReport(user.id, reportId, dto);
+  }
+
+  @Delete(':id')
+  @ApiNoContentResponse()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBookReport(@CurrentUser() user: AuthUser, @Param('id') reportId: string) {
+    return this.bookReportsService.deleteBookReport(user.id, reportId);
   }
 }

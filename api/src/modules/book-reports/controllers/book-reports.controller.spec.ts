@@ -8,7 +8,11 @@ import { BookReportsController } from './book-reports.controller';
 
 describe('BookReportsController', () => {
   let controller: BookReportsController;
-  const service = { createBookReport: vi.fn(), updateBookReport: vi.fn() };
+  const service = {
+    createBookReport: vi.fn(),
+    updateBookReport: vi.fn(),
+    deleteBookReport: vi.fn(),
+  };
 
   const user: AuthUser = {
     id: '11111111-1111-4111-8111-111111111111',

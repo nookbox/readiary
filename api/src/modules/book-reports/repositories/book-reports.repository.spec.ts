@@ -141,4 +141,33 @@ describe('BookReportsRepository', () => {
       });
     });
   });
+
+  describe('delete', () => {
+    it('내 독후감이 있으면 삭제된다.', async () => {
+      const created = await repository.create({ userId, bookId, rating: 3, publishedAt: null });
+
+      const deleted = await repository.delete(userId, created.id);
+
+      // 내 독후감이 있으면 삭제된다.
+      expect(deleted?.id).toBe(created.id);
+
+      const [row] = await db.select().from(bookReports).where(eq(bookReports.id, created.id));
+      expect(row).toBeUndefined();
+    });
+
+    it('다른 사람의 독후감은 삭제되지 않는다.', async () => {
+      const [other] = await db
+        .insert(users)
+        .values({ name: '다른 사람', email: 'other@example.com' })
+        .returning();
+
+      const created = await repository.create({ userId, bookId, rating: 3, publishedAt: null });
+
+      const deleted = await repository.delete(other!.id, created.id);
+
+      expect(deleted).toBeUndefined();
+      const [row] = await db.select().from(bookReports).where(eq(bookReports.id, created.id));
+      expect(row).toBeDefined();
+    });
+  });
 });

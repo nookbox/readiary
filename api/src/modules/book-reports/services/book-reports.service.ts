@@ -46,4 +46,11 @@ export class BookReportsService {
 
     return updated;
   }
+
+  async deleteBookReport(userId: string, reportId: string): Promise<void> {
+    const deleted = await this.bookReportsRepository.delete(userId, reportId);
+    if (!deleted) throw new BookReportNotFoundError(reportId);
+
+    return;
+  }
 }

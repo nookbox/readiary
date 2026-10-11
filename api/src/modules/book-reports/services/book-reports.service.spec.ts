@@ -10,7 +10,12 @@ import { BookReportsService } from './book-reports.service';
 describe('BookReportsService', () => {
   let service: BookReportsService;
 
-  const bookReportsRepository = { create: vi.fn(), update: vi.fn(), findById: vi.fn() };
+  const bookReportsRepository = {
+    create: vi.fn(),
+    update: vi.fn(),
+    findById: vi.fn(),
+    delete: vi.fn(),
+  };
 
   const userId = '11111111-1111-4111-8111-111111111111';
   const bookId = '22222222-2222-4222-8222-222222222222';
@@ -166,6 +171,23 @@ describe('BookReportsService', () => {
         service.updateBookReport(userId, reportId, { content: '   ', publish: true }),
       ).rejects.toThrow(PublishWithoutContentError);
       expect(bookReportsRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteBookReport', () => {
+    it('내 독후감이 있으면 삭제한다.', async () => {
+      bookReportsRepository.delete.mockResolvedValue({ id: reportId, userId });
+
+      await expect(service.deleteBookReport(userId, reportId)).resolves.toBeUndefined();
+      expect(bookReportsRepository.delete).toHaveBeenCalledWith(userId, reportId);
+    });
+
+    it('독후감이 없거나 남의 것이면 BookReportNotFoundError 를 던진다.', async () => {
+      bookReportsRepository.delete.mockResolvedValue(undefined);
+
+      await expect(service.deleteBookReport(userId, reportId)).rejects.toThrow(
+        BookReportNotFoundError,
+      );
     });
   });
 });
